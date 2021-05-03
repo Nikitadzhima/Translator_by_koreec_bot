@@ -1,11 +1,40 @@
 import telebot
 from telebot import types
+import sqlite3
 
 bot = telebot.TeleBot('1795585629:AAE08nhtl2w_waeSMrGbg3qIcOjPCam6jLc')
 
 language_from = 'rus'
 language_to = 'eng'
+
+def create_database():
+    conn = sqlite3.connect('dictionary.db')
+    cur = conn.cursor()
+    cur.execute("""CREATE TABLE IF NOT EXISTS dictionary(
+    eng TEXT,
+    rus TEXT)
+    """)
+
+    words = [('hello', 'привет'),
+             ('love', 'любовь'),
+             ('world', 'мир'),
+             ('family', 'семья'),
+             ('you', 'ты'),
+             ('beautiful', 'красивый')
+             ('i', 'я')]
+    cur.executemany("INSERT INTO dictionary VALUES(?, ?)", words)
+    conn.commit()
+
+def get_words():
+    conn = sqlite3.connect('dictionary.db')
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM dictionary")
+    return cur.fetchall()
+    
 def translate(given_word):
+    create_database()
+    words = get_words()
+    
     global language_from
     global language_to
     id_from = 1
@@ -20,16 +49,11 @@ def translate(given_word):
     elif language_to == 'end':
         id_to = 0
 
-    dictionary = dict()
-    dictionary['hello'] = 'привет'
-    dictionary['world'] = 'мир'
-    dictionary['love'] = 'любовь'
-    dictionary['bye'] = 'пока'
-    dictionary['family'] = 'семья'
-    for word in dictionary.items():
+    for word in words:
         if word[id_from] == given_word:
             return word[id_to]
-    return 'Не знаю такого слова, прости('
+    unknown_word = ['I don\'t know this word, sorry(', 'Не знаю такого слова, прости(']
+    return unknown_word[id_from]
 
 @bot.message_handler(content_types=['text'])
 def start(message):
