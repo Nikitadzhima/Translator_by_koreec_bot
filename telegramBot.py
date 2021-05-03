@@ -20,7 +20,7 @@ def create_database():
              ('world', 'мир'),
              ('family', 'семья'),
              ('you', 'ты'),
-             ('beautiful', 'красивый')
+             ('beautiful', 'красивый'),
              ('i', 'я')]
     cur.executemany("INSERT INTO dictionary VALUES(?, ?)", words)
     conn.commit()
