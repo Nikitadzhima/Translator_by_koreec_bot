@@ -100,6 +100,6 @@ def callback_worker(call):
         bot.send_message(call.message.chat.id, text='Выбери язык, на который переводить', reply_markup=keyboard)
     elif call.data[:9] == 'translate':
         language_to = call.data[10:13]
-        bot.send_message(call.message.chat.id, 'Класс! Теперь можешь маленькими буквами по одному писать слова, перевод котоырх хочешь узнать')
+        bot.send_message(call.message.chat.id, 'Класс! Теперь можешь по одному писать слова, перевод котоырх хочешь узнать')
 
 bot.polling(none_stop = True, interval = 0)
