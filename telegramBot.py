@@ -2,6 +2,8 @@ import telebot
 from telebot import types
 import sqlite3
 
+from local_dictionary import get_local_dictionary
+
 bot = telebot.TeleBot('1795585629:AAE08nhtl2w_waeSMrGbg3qIcOjPCam6jLc')
 
 language_from = 'rus'
@@ -15,13 +17,7 @@ def create_database():
     rus TEXT)
     """)
 
-    words = [('hello', 'привет'),
-             ('love', 'любовь'),
-             ('world', 'мир'),
-             ('family', 'семья'),
-             ('you', 'ты'),
-             ('beautiful', 'красивый'),
-             ('i', 'я')]
+    words = get_local_dictionary()
     cur.executemany("INSERT INTO dictionary VALUES(?, ?)", words)
     conn.commit()
 
@@ -30,7 +26,10 @@ def get_words():
     cur = conn.cursor()
     cur.execute("SELECT * FROM dictionary")
     return cur.fetchall()
-    
+
+def words_are_equal(word1, word2):
+    return word1.lower() == word2.lower()    
+
 def translate(given_word):
     create_database()
     words = get_words()
@@ -50,7 +49,7 @@ def translate(given_word):
         id_to = 0
 
     for word in words:
-        if word[id_from] == given_word:
+        if words_are_equal(word[id_from], given_word):
             return word[id_to]
     unknown_word = ['I don\'t know this word, sorry(', 'Не знаю такого слова, прости(']
     return unknown_word[id_from]
@@ -58,7 +57,7 @@ def translate(given_word):
 @bot.message_handler(content_types=['text'])
 def start(message):
     if message.text == '/start':
-        bot.send_message(message.from_user.id, 'Тут можно переводить слова')
+        bot.send_message(message.from_user.id, 'Этот бот может переводить слова')
         
         keyboard = types.InlineKeyboardMarkup()
         key_rus = types.InlineKeyboardButton(text='Русский', callback_data = 'get_language_rus')
